@@ -1,112 +1,112 @@
-const canvas = document.getElementById('pong');
+const canvas = document.getElementById('gameCanvas');
 const context = canvas.getContext('2d');
-canvas.width = canvas.offsetWidth;
-canvas.height = canvas.offsetHeight;
+const gameOverDisplay = document.getElementById('game-over');
+canvas.width = canvas.height = 500;
 
-const paddleWidth = 10;
-const paddleHeight = 100;
-const ballSize = 10;
-let gameOver = false;
+let paddleWidth = 10;
+let paddleHeight = 70;
+let ballSize = 10;
+let playerY = canvas.height / 2 - paddleHeight / 2;
+let aiY = canvas.height / 2 - paddleHeight / 2;
+let ballX = canvas.width / 2 - ballSize / 2;
+let ballY = canvas.height / 2 - ballSize / 2;
+let ballSpeedX = 4;
+let ballSpeedY = 4;
+let playerSpeed = 0;
+let aiSpeed = 3;
+let playerScore = 0;
 
-const player = {
-    x: 0,
-    y: canvas.height / 2 - paddleHeight / 2,
-    width: paddleWidth,
-    height: paddleHeight,
-    color: '#fff',
-    dy: 4
-};
+function draw() {
+    // Clear screen
+    context.fillStyle = 'black';
+    context.fillRect(0, 0, canvas.width, canvas.height);
 
-const ai = {
-    x: canvas.width - paddleWidth,
-    y: canvas.height / 2 - paddleHeight / 2,
-    width: paddleWidth,
-    height: paddleHeight,
-    color: '#fff',
-    dy: 4
-};
+    // Player paddle
+    context.fillStyle = 'white';
+    context.fillRect(0, playerY, paddleWidth, paddleHeight);
 
-const ball = {
-    x: canvas.width / 2,
-    y: canvas.height / 2,
-    size: ballSize,
-    dx: 4,
-    dy: 4,
-    color: '#fff'
-};
+    // AI paddle
+    context.fillRect(canvas.width - paddleWidth, aiY, paddleWidth, paddleHeight);
 
-function drawRect(x, y, w, h, color) {
-    context.fillStyle = color;
-    context.fillRect(x, y, w, h);
+    // Ball
+    context.fillRect(ballX, ballY, ballSize, ballSize);
+
+    // Score
+    context.font = '20px "Press Start 2P"';
+    context.fillText(playerScore, canvas.width / 2 - 20, 30);
 }
 
-function drawBall(x, y, size, color) {
-    context.fillStyle = color;
-    context.beginPath();
-    context.arc(x, y, size, 0, Math.PI * 2);
-    context.closePath();
-    context.fill();
-}
+function update() {
+    // Move player
+    playerY += playerSpeed;
 
-function movePlayer() {
-    document.addEventListener('keydown', event => {
-        if (event.key === 'ArrowUp' && player.y > 0) {
-            player.y -= player.dy;
-        } else if (event.key === 'ArrowDown' && player.y + player.height < canvas.height) {
-            player.y += player.dy;
-        }
-    });
-}
+    // Move AI
+    if (aiY + paddleHeight / 2 < ballY) {
+        aiY += aiSpeed;
+    } else {
+        aiY -= aiSpeed;
+    }
 
-function moveAi() {
-    if (ball.y < ai.y + ai.height / 2) {
-        ai.y -= ai.dy;
-    } else if (ball.y > ai.y + ai.height / 2) {
-        ai.y += ai.dy;
+    // Move ball
+    ballX += ballSpeedX;
+    ballY += ballSpeedY;
+
+    // Ball collision with top and bottom
+    if (ballY <= 0 || ballY + ballSize >= canvas.height) {
+        ballSpeedY = -ballSpeedY;
+    }
+
+    // Ball collision with player paddle
+    if (ballX <= paddleWidth && ballY + ballSize >= playerY && ballY <= playerY + paddleHeight) {
+        ballSpeedX = -ballSpeedX;
+    }
+
+    // Ball collision with AI paddle
+    if (ballX + ballSize >= canvas.width - paddleWidth && ballY + ballSize >= aiY && ballY <= aiY + paddleHeight) {
+        ballSpeedX = -ballSpeedX;
+    }
+
+    // Ball out of bounds
+    if (ballX < 0) {
+        playerScore++;
+        resetBall();
+    } else if (ballX + ballSize > canvas.width) {
+        gameOver();
     }
 }
 
-function moveBall() {
-    ball.x += ball.dx;
-    ball.y += ball.dy;
-
-    if (ball.y + ball.size > canvas.height || ball.y - ball.size < 0) {
-        ball.dy *= -1;
-    }
-
-    if (ball.x + ball.size > canvas.width) {
-        ball.dx *= -1;
-    }
-
-    if (ball.x - ball.size < 0) {
-        gameOver = true;
-        displayGameOver();
-    }
-
-    if (collision(player, ball)) {
-        ball.dx *= -1;
-    } else if (collision(ai, ball)) {
-        ball.dx *= -1;
-    }
+function resetBall() {
+    ballX = canvas.width / 2 - ballSize / 2;
+    ballY = canvas.height / 2 - ballSize / 2;
+    ballSpeedX = -ballSpeedX;
+    ballSpeedY = Math.floor(Math.random() * 10) - 5;
 }
 
-function collision(paddle, ball) {
-    return (
-        ball.x - ball.size < paddle.x + paddle.width &&
-        ball.x + ball.size > paddle.x &&
-        ball.y + ball.size > paddle.y &&
-        ball.y - ball.size < paddle.y + paddle.height
-    );
+function gameOver() {
+    gameOverDisplay.style.display = 'block';
+    setTimeout(() => {
+        playerScore = 0;
+        gameOverDisplay.style.display = 'none';
+        resetBall();
+    }, 2000);
 }
 
-function displayGameOver() {
-    const gameOverDiv = document.getElementById('game-over');
-    gameOverDiv.style.display = 'block';
-    setTimeout(() => location.reload(), 2000); // Reload the page after 2 seconds
-}
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'ArrowUp') {
+        playerSpeed = -5;
+    } else if (event.key === 'ArrowDown') {
+        playerSpeed = 5;
+    }
+});
+
+document.addEventListener('keyup', function() {
+    playerSpeed = 0;
+});
 
 function gameLoop() {
-    if (!gameOver) {
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        drawRect(player.x, player.y, player.width, player.height, player.color);
-        drawRect(ai.x, ai.y, ai.width, ai.height, ai.color 
+    draw();
+    update();
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();

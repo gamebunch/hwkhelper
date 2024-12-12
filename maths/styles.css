@@ -10,9 +10,11 @@ body {
 
 #game-container {
     position: relative;
-    width: 100%;
-    height: 100vh;
+    width: 80%;
+    height: 70%;
+    border: 2px solid #000;
     overflow: hidden;
+    background-color: #fff;
 }
 
 #dino {
@@ -36,10 +38,10 @@ body {
     background-color: brown;
 }
 
-#spike {
+.spike {
     position: absolute;
     bottom: 20px;
-    right: 5%;
+    right: 0;
     width: 5%;
     height: 5%;
     background-color: black;
@@ -54,4 +56,14 @@ body {
     right: 10px;
     font-size: 2em;
     color: black;
+}
+
+#game-over {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3em;
+    color: red;
 }

@@ -5,21 +5,22 @@ body {
     height: 100vh;
     margin: 0;
     background-color: #f7f7f7;
+    font-family: 'Press Start 2P', cursive; /* Pixelated font */
 }
 
 #game-container {
     position: relative;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     overflow: hidden;
 }
 
 #dino {
     position: absolute;
     bottom: 20px;
-    left: 50px;
-    width: 40px;
-    height: 40px;
+    left: 5%;
+    width: 5%;
+    height: 5%;
     background-color: black; /* Default color if PNG not found */
     background-image: url('dino.png');
     background-size: cover;
@@ -31,6 +32,26 @@ body {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 20px;
+    height: 5%;
     background-color: brown;
-} 
+}
+
+#spike {
+    position: absolute;
+    bottom: 20px;
+    right: 5%;
+    width: 5%;
+    height: 5%;
+    background-color: black;
+    background-image: url('spike.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+#score {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 2em;
+    color: black;
+}
